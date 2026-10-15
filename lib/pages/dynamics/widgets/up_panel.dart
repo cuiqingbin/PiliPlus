@@ -147,7 +147,7 @@ class _UpPanelState extends State<UpPanel> {
       avatar = DecoratedBox(
         decoration: const BoxDecoration(
           shape: .circle,
-          color: Color(0xFF5CB67B),
+          color: Color(0xFFEC5D85),
         ),
         child: Image.asset(
           width: 38,

@@ -21,7 +21,7 @@ version: 2.1.6+1
 
 environment:
   sdk: ">=3.13.0"
-  flutter: 3.47.7
+  flutter: ">=3.47.0"
 
 # Dependencies specify other packages that your package needs in order to work.
 # To automatically upgrade your package dependencies to the latest versions
@@ -235,21 +235,20 @@ flutter_launcher_icons:
   android: true
   ios: true
   remove_alpha_ios: true
-  image_path: assets/images/logo/logo_2.png
-  image_path_android: assets/images/logo/logo_2.png
+  image_path: assets/images/logo/logo.png
+  image_path_android: assets/images/logo/logo.png
   image_path_ios: assets/images/logo/logo.png
-  adaptive_icon_background: "#ffffff"
-  adaptive_icon_foreground: assets/images/logo/logo_2.png
-  adaptive_icon_monochrome: assets/images/logo/logo_2.png
+  adaptive_icon_background: "#EC5D85"
+  adaptive_icon_foreground: assets/images/logo/logo.png
   macos:
     generate: true
     image_path: assets/images/logo/logo.png
 
 flutter_native_splash:
   android_12:
-    color: "#ffffff"
+    color: "#EC5D85"
     color_dark: "#212121"
-  color: "#ffffff"
+  color: "#EC5D85"
   color_dark: "#212121"
   image: assets/images/logo/logo_2.png
   image_dark: assets/images/logo/logo_2.png
