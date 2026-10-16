@@ -22,6 +22,7 @@ import 'package:PiliPlus/models_new/live/live_follow/data.dart';
 import 'package:PiliPlus/models_new/live/live_medal_wall/data.dart';
 import 'package:PiliPlus/models_new/live/live_room_info_h5/data.dart';
 import 'package:PiliPlus/models_new/live/live_room_play_info/data.dart';
+import 'package:PiliPlus/models_new/live/live_room_tab/item.dart';
 import 'package:PiliPlus/models_new/live/live_search/data.dart';
 import 'package:PiliPlus/models_new/live/live_second_list/data.dart';
 import 'package:PiliPlus/models_new/live/live_superchat/data.dart';
@@ -119,6 +120,50 @@ abstract final class LiveHttp {
     );
     if (res.data['code'] == 0) {
       return Success(RoomInfoH5Data.fromJson(res.data['data']));
+    } else {
+      return Error(res.data['message']);
+    }
+  }
+
+  static Future<LoadingState<List<LiveRoomScheduleTab>>> liveRoomScheduleTabs({
+    required Object roomId,
+  }) async {
+    final params = {
+      'access_key': ?recommend.accessKey,
+      'actionKey': 'appkey',
+      'build': 8430300,
+      'channel': 'master',
+      'c_locale': 'zh_CN',
+      'device': 'android',
+      'mobi_app': 'android',
+      'platform': 'android',
+      'room_id': roomId,
+      's_locale': 'zh_CN',
+      'statistics': Constants.statisticsApp,
+      'version': '8.43.0',
+    };
+    AppSign.appSign(params);
+    final res = await Request().get(
+      Api.liveRoomInfoApp,
+      queryParameters: params,
+      options: Options(
+        headers: {
+          'buvid': LoginHttp.buvid,
+          'User-Agent': Constants.userAgentApp,
+          'app-key': 'android',
+        },
+      ),
+    );
+    if (res.data['code'] == 0) {
+      try {
+        return Success(
+          LiveRoomScheduleTab.fromRoomData(
+            res.data['data'] as Map<String, dynamic>?,
+          ),
+        );
+      } catch (e) {
+        return Error(e.toString());
+      }
     } else {
       return Error(res.data['message']);
     }

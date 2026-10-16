@@ -22,6 +22,7 @@ import 'package:PiliPlus/pages/danmaku/danmaku_model.dart';
 import 'package:PiliPlus/pages/live_room/contribution_rank/controller.dart';
 import 'package:PiliPlus/pages/live_room/contribution_rank/view.dart';
 import 'package:PiliPlus/pages/live_room/controller.dart';
+import 'package:PiliPlus/pages/live_room/schedule/view.dart';
 import 'package:PiliPlus/pages/live_room/superchat/superchat_card.dart';
 import 'package:PiliPlus/pages/live_room/superchat/superchat_panel.dart';
 import 'package:PiliPlus/pages/live_room/widgets/bottom_control.dart';
@@ -907,6 +908,37 @@ class _LiveRoomPageState extends State<LiveRoomPage>
                     ),
                   ),
                 ),
+                Obx(() {
+                  if (_liveRoomController.scheduleTabs.isEmpty) {
+                    return const SizedBox.shrink();
+                  }
+                  return Padding(
+                    padding: const EdgeInsets.only(left: 2),
+                    child: FilledButton(
+                      style: FilledButton.styleFrom(
+                        backgroundColor: const Color(0xFFFF6699),
+                        foregroundColor: Colors.white,
+                        minimumSize: const Size(52, 34),
+                        padding: const EdgeInsets.symmetric(horizontal: 10),
+                        visualDensity: VisualDensity.compact,
+                        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                        shape: const StadiumBorder(),
+                      ),
+                      onPressed: () => LiveSchedulePanel.show(
+                        context,
+                        tabs: _liveRoomController.scheduleTabs.toList(),
+                        initialIndex: _liveRoomController.scheduleInitialIndex,
+                      ),
+                      child: const Text(
+                        '赛程',
+                        style: TextStyle(
+                          fontSize: 13,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+                  );
+                }),
               ],
             ),
           ),

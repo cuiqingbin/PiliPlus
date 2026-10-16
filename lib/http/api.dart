@@ -322,6 +322,10 @@ abstract final class Api {
   static const String liveRoomInfoH5 =
       '${HttpString.liveBaseUrl}/xlive/web-room/v1/index/getH5InfoByRoom';
 
+  // 直播间 App 聚合信息（赛程/活动 Tab）
+  static const String liveRoomInfoApp =
+      '${HttpString.liveBaseUrl}/xlive/app-room/v1/index/getInfoByRoom';
+
   // 直播间弹幕预获取
   // roomid roomId
   static const String liveRoomDmPrefetch =

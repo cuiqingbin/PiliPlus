@@ -17,6 +17,7 @@ import 'package:PiliPlus/models_new/live/live_dm_info/data.dart';
 import 'package:PiliPlus/models_new/live/live_medal_wall/uinfo_medal.dart';
 import 'package:PiliPlus/models_new/live/live_room_info_h5/data.dart';
 import 'package:PiliPlus/models_new/live/live_room_play_info/codec.dart';
+import 'package:PiliPlus/models_new/live/live_room_tab/item.dart';
 import 'package:PiliPlus/models_new/live/live_room_play_info/stream.dart';
 import 'package:PiliPlus/models_new/live/live_superchat/item.dart';
 import 'package:PiliPlus/pages/common/publish/publish_route.dart';
@@ -66,6 +67,12 @@ class LiveRoomController extends GetxController {
 
   final isLoaded = false.obs;
   final roomInfoH5 = Rxn<RoomInfoH5Data>();
+  final scheduleTabs = <LiveRoomScheduleTab>[].obs;
+
+  int get scheduleInitialIndex {
+    final index = scheduleTabs.indexWhere((e) => e.isSchedule);
+    return index < 0 ? 0 : index;
+  }
 
   final liveTime = Rxn<int>();
   Timer? liveTimeTimer;
@@ -205,6 +212,7 @@ class LiveRoomController extends GetxController {
     mid = account.mid;
     queryLiveUrl(autoFullScreenFlag: true);
     queryLiveInfoH5();
+    queryScheduleTabs();
     if (Accounts.heartbeat.isLogin && !Pref.historyPause) {
       VideoHttp.roomEntryAction(roomId: roomId);
     }
@@ -345,6 +353,13 @@ class LiveRoomController extends GetxController {
       videoPlayerServiceHandler?.onVideoDetailChange(response, roomId, heroTag);
     } else {
       res.toast();
+    }
+  }
+
+  Future<void> queryScheduleTabs() async {
+    final res = await LiveHttp.liveRoomScheduleTabs(roomId: roomId);
+    if (res case Success(:final response)) {
+      scheduleTabs.assignAll(response);
     }
   }
 

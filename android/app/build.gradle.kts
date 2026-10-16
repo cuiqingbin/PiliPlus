@@ -70,7 +70,7 @@ android {
                 resValue(
                     type = "string",
                     name = "app_name",
-                    value = "bilibili dev",
+                    value = "哔哩哔哩 dev",
                 )
             }
             proguardFiles(
