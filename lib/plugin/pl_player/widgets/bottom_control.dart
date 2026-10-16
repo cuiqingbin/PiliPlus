@@ -2,8 +2,8 @@ import 'package:PiliPlus/common/widgets/progress_bar/audio_video_progress_bar.da
 import 'package:PiliPlus/common/widgets/progress_bar/segment_progress_bar.dart';
 import 'package:PiliPlus/pages/video/controller.dart';
 import 'package:PiliPlus/plugin/pl_player/controller.dart';
+import 'package:PiliPlus/plugin/pl_player/models/progress_style.dart';
 import 'package:PiliPlus/plugin/pl_player/view/view.dart';
-import 'package:PiliPlus/utils/extension/theme_ext.dart';
 import 'package:PiliPlus/utils/feed_back.dart';
 import 'package:PiliPlus/utils/platform_utils.dart';
 import 'package:get/get.dart';
@@ -46,20 +46,15 @@ class BottomControl extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colorScheme = ColorScheme.of(context);
-    final primary = colorScheme.isLight
-        ? colorScheme.inversePrimary
-        : colorScheme.primary;
-    final thumbGlowColor = primary.withAlpha(80);
-    final bufferedBarColor = primary.withValues(alpha: 0.4);
+    const progressPink = PlayerProgressStyle.played;
 
     return Padding(
-      padding: const .symmetric(horizontal: 10, vertical: 12),
+      padding: const .symmetric(horizontal: 10, vertical: 8),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
           Padding(
-            padding: const EdgeInsets.fromLTRB(10, 0, 10, 7),
+            padding: const EdgeInsets.fromLTRB(6, 0, 6, 4),
             child: Obx(
               () => Offstage(
                 offstage: !controller.showControls.value,
@@ -72,14 +67,15 @@ class BottomControl extends StatelessWidget {
                         progress: controller.progress,
                         buffered: controller.buffered.value,
                         total: controller.duration.value,
-                        progressBarColor: primary,
-                        baseBarColor: const Color(0x33FFFFFF),
-                        bufferedBarColor: bufferedBarColor,
-                        thumbColor: primary,
-                        thumbGlowColor: thumbGlowColor,
-                        barHeight: 3.5,
-                        thumbRadius: 7,
-                        thumbGlowRadius: 25,
+                        progressBarColor: progressPink,
+                        baseBarColor: PlayerProgressStyle.background,
+                        bufferedBarColor: PlayerProgressStyle.buffered,
+                        thumbColor: PlayerProgressStyle.thumb,
+                        thumbGlowColor: PlayerProgressStyle.thumbGlow,
+                        barHeight: PlayerProgressStyle.barHeight,
+                        thumbRadius: PlayerProgressStyle.thumbRadius,
+                        thumbGlowRadius: PlayerProgressStyle.thumbGlowRadius,
+                        thumbShape: ProgressThumbShape.biliTv,
                         onDragStart: onDragStart,
                         onDragUpdate: onDragUpdate,
                         onSeek: onSeek,
@@ -90,8 +86,9 @@ class BottomControl extends StatelessWidget {
                       Positioned(
                         left: 0,
                         right: 0,
-                        bottom: 5.25,
+                        bottom: 0,
                         child: SegmentProgressBar(
+                          height: PlayerProgressStyle.barHeight,
                           segments: videoDetailController.segmentProgressList,
                         ),
                       ),
@@ -99,7 +96,7 @@ class BottomControl extends StatelessWidget {
                         videoDetailController.viewPointList.isNotEmpty &&
                         videoDetailController.showVP.value)
                       Padding(
-                        padding: const .only(bottom: 8.75),
+                        padding: const .only(bottom: 2),
                         child: ViewPointSegmentProgressBar(
                           segments: videoDetailController.viewPointList,
                           onSeek: PlatformUtils.isDesktop
@@ -111,7 +108,12 @@ class BottomControl extends StatelessWidget {
                     if (videoDetailController.showDmTrendChart.value)
                       if (videoDetailController.dmTrend.value?.dataOrNull
                           case final list?)
-                        buildDmChart(primary, list, videoDetailController, 4.5),
+                        buildDmChart(
+                          progressPink,
+                          list,
+                          videoDetailController,
+                          4.5,
+                        ),
                   ],
                 ),
               ),

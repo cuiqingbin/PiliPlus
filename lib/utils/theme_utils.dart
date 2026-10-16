@@ -83,7 +83,7 @@ abstract final class ThemeUtils {
         indicatorColor: Colors.transparent,
         overlayColor: WidgetStateProperty.resolveWith((states) {
           if (states.contains(WidgetState.pressed)) {
-            return colorScheme.primary.withValues(alpha: 0.08);
+            return colorScheme.vipColor.withValues(alpha: 0.08);
           }
           return Colors.transparent;
         }),
@@ -93,7 +93,7 @@ abstract final class ThemeUtils {
           final selected = states.contains(WidgetState.selected);
           return IconThemeData(
             size: 22,
-            color: selected ? colorScheme.primary : colorScheme.outline,
+            color: selected ? colorScheme.vipColor : colorScheme.outline,
           );
         }),
         labelTextStyle: WidgetStateProperty.resolveWith((states) {
@@ -102,12 +102,17 @@ abstract final class ThemeUtils {
             fontSize: 10,
             height: 1.2,
             fontWeight: selected ? FontWeight.w500 : FontWeight.w400,
-            color: selected ? colorScheme.primary : colorScheme.outline,
+            color: selected ? colorScheme.vipColor : colorScheme.outline,
           );
         }),
       ),
+      tabBarTheme: TabBarThemeData(
+        labelColor: colorScheme.vipColor,
+        unselectedLabelColor: colorScheme.onSurfaceVariant,
+        indicatorColor: colorScheme.vipColor,
+      ),
       bottomNavigationBarTheme: BottomNavigationBarThemeData(
-        selectedItemColor: colorScheme.primary,
+        selectedItemColor: colorScheme.vipColor,
         unselectedItemColor: colorScheme.outline,
         selectedLabelStyle: const TextStyle(fontSize: 10),
         unselectedLabelStyle: const TextStyle(fontSize: 10),

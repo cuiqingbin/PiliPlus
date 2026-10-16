@@ -411,40 +411,39 @@ class _RenderVideoTime extends RenderBox {
   set duration(String value) {
     if (_duration == value) return;
     _duration = value;
-    final paragraph = _buildParagraph(const Color(0xFFD0D0D0), _duration);
-    if (paragraph.maxIntrinsicWidth != _cache?.maxIntrinsicWidth) {
-      markNeedsLayout();
-    } else {
-      markNeedsSemanticsUpdate();
-    }
-    _cache?.dispose();
-    _cache = paragraph;
+    _rebuildCache();
+    markNeedsLayout();
   }
 
   String _position;
   set position(String value) {
+    if (_position == value) return;
     _position = value;
+    _rebuildCache();
     markNeedsPaint();
     markNeedsSemanticsUpdate();
   }
 
   ui.Paragraph? _cache;
+  ui.Paragraph? _layoutCache;
+
+  static const _fontSize = 12.0;
+
+  String get _text => '$_position/$_duration';
 
   static ui.Paragraph _buildParagraph(Color color, String time) {
     final builder =
         ui.ParagraphBuilder(
             ui.ParagraphStyle(
-              fontSize: 10,
-              height: 1.4,
-              fontFamily: 'Monospace',
+              fontSize: _fontSize,
+              height: 1.2,
             ),
           )
           ..pushStyle(
             ui.TextStyle(
               color: color,
-              fontSize: 10,
-              height: 1.4,
-              fontFamily: 'Monospace',
+              fontSize: _fontSize,
+              height: 1.2,
               fontFeatures: const [FontFeature.tabularFigures()],
             ),
           )
@@ -453,13 +452,23 @@ class _RenderVideoTime extends RenderBox {
       ..layout(const ui.ParagraphConstraints(width: .infinity));
   }
 
+  void _rebuildCache() {
+    _cache?.dispose();
+    _cache = _buildParagraph(Colors.white, _text);
+    markNeedsSemanticsUpdate();
+  }
+
   @override
   ui.Size computeDryLayout(covariant BoxConstraints constraints) {
-    final paragraph = _cache ??= _buildParagraph(
-      const Color(0xFFD0D0D0),
-      _duration,
+    _layoutCache?.dispose();
+    final paragraph = _layoutCache = _buildParagraph(
+      Colors.white,
+      '$_duration/$_duration',
     );
-    return Size(paragraph.maxIntrinsicWidth, paragraph.height * 2);
+    return Size(
+      paragraph.maxIntrinsicWidth + 8,
+      paragraph.height,
+    );
   }
 
   @override
@@ -467,7 +476,7 @@ class _RenderVideoTime extends RenderBox {
     super.describeSemanticsConfiguration(config);
     config
       ..textDirection = .ltr
-      ..label = 'position:$_position\nduration:$_duration';
+      ..label = '$_position/$_duration';
   }
 
   @override
@@ -477,23 +486,19 @@ class _RenderVideoTime extends RenderBox {
 
   @override
   void paint(PaintingContext context, ui.Offset offset) {
-    final para = _buildParagraph(Colors.white, _position);
-    context.canvas
-      ..drawParagraph(
-        para,
-        Offset(
-          offset.dx + _cache!.maxIntrinsicWidth - para.maxIntrinsicWidth,
-          offset.dy,
-        ),
-      )
-      ..drawParagraph(_cache!, Offset(offset.dx, offset.dy + para.height));
-    para.dispose();
+    final para = _cache ??= _buildParagraph(Colors.white, _text);
+    context.canvas.drawParagraph(
+      para,
+      Offset(offset.dx + 8, offset.dy),
+    );
   }
 
   @override
   void dispose() {
     _cache?.dispose();
     _cache = null;
+    _layoutCache?.dispose();
+    _layoutCache = null;
     super.dispose();
   }
 

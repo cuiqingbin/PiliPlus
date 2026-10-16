@@ -8,4 +8,7 @@ abstract final class BiliColors {
   static const blueDark = Color(0xFF2C9CC8);
 
   static const yellow = Color(0xFFFFCC00);
+
+  /// 官方播放器进度条粉色
+  static const playerPink = Color(0xFFFB7299);
 }

@@ -41,6 +41,7 @@ import 'package:PiliPlus/plugin/pl_player/models/data_status.dart';
 import 'package:PiliPlus/plugin/pl_player/models/double_tap_type.dart';
 import 'package:PiliPlus/plugin/pl_player/models/fullscreen_mode.dart';
 import 'package:PiliPlus/plugin/pl_player/models/gesture_type.dart';
+import 'package:PiliPlus/plugin/pl_player/models/progress_style.dart';
 import 'package:PiliPlus/plugin/pl_player/models/video_fit_type.dart';
 import 'package:PiliPlus/plugin/pl_player/widgets/app_bar_ani.dart';
 import 'package:PiliPlus/plugin/pl_player/widgets/backward_seek.dart';
@@ -55,7 +56,6 @@ import 'package:PiliPlus/utils/connectivity_utils.dart';
 import 'package:PiliPlus/utils/desktop/window_controller.dart';
 import 'package:PiliPlus/utils/duration_utils.dart';
 import 'package:PiliPlus/utils/extension/num_ext.dart';
-import 'package:PiliPlus/utils/extension/theme_ext.dart';
 import 'package:PiliPlus/utils/feed_back.dart';
 import 'package:PiliPlus/utils/id_utils.dart';
 import 'package:PiliPlus/utils/image_utils.dart';
@@ -1349,11 +1349,7 @@ class _PLVideoPlayerState extends State<PLVideoPlayer>
     maxWidth = widget.maxWidth;
     maxHeight = widget.maxHeight;
     final isFullScreen = this.isFullScreen;
-    final primary = isFullScreen && colorScheme.isLight
-        ? colorScheme.inversePrimary
-        : colorScheme.primary;
-    late final thumbGlowColor = primary.withAlpha(80);
-    late final bufferedBarColor = primary.withValues(alpha: 0.4);
+    const progressPink = PlayerProgressStyle.played;
     const TextStyle textStyle = TextStyle(
       color: Colors.white,
       fontSize: 12,
@@ -1740,13 +1736,14 @@ class _PLVideoPlayerState extends State<PLVideoPlayer>
                           progress: plPlayerController.progress,
                           buffered: plPlayerController.buffered.value,
                           total: plPlayerController.duration.value,
-                          progressBarColor: primary,
-                          baseBarColor: const Color(0x33FFFFFF),
-                          bufferedBarColor: bufferedBarColor,
-                          thumbColor: primary,
-                          thumbGlowColor: thumbGlowColor,
-                          barHeight: 3.5,
-                          thumbRadius: 2.5,
+                          progressBarColor: progressPink,
+                          baseBarColor: PlayerProgressStyle.background,
+                          bufferedBarColor: PlayerProgressStyle.buffered,
+                          thumbColor: progressPink,
+                          thumbGlowColor: PlayerProgressStyle.thumbGlow,
+                          barHeight: PlayerProgressStyle.miniBarHeight,
+                          thumbRadius: PlayerProgressStyle.miniThumbRadius,
+                          thumbGlowRadius: 0,
                         ),
                       ),
                       if (plPlayerController.enableBlock &&
@@ -1754,8 +1751,9 @@ class _PLVideoPlayerState extends State<PLVideoPlayer>
                         Positioned(
                           left: 0,
                           right: 0,
-                          bottom: 0.75,
+                          bottom: 1,
                           child: SegmentProgressBar(
+                            height: PlayerProgressStyle.miniBarHeight,
                             segments: videoDetailController.segmentProgressList,
                           ),
                         ),
@@ -1763,7 +1761,7 @@ class _PLVideoPlayerState extends State<PLVideoPlayer>
                           videoDetailController.viewPointList.isNotEmpty &&
                           videoDetailController.showVP.value)
                         Padding(
-                          padding: const .only(bottom: 4.25),
+                          padding: const .only(bottom: 3),
                           child: ViewPointSegmentProgressBar(
                             segments: videoDetailController.viewPointList,
                             onSeek: PlatformUtils.isMobile
@@ -1784,7 +1782,11 @@ class _PLVideoPlayerState extends State<PLVideoPlayer>
                           videoDetailController.showDmTrendChart.value)
                         if (videoDetailController.dmTrend.value?.dataOrNull
                             case final list?)
-                          buildDmChart(primary, list, videoDetailController),
+                          buildDmChart(
+                            progressPink,
+                            list,
+                            videoDetailController,
+                          ),
                     ],
                   ),
                 );

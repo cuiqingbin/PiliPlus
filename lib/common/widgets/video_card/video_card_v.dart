@@ -91,7 +91,7 @@ class VideoCardV extends StatelessWidget {
         Material(
           color: Theme.of(context).colorScheme.surface,
           borderRadius: Style.mdRadius,
-          clipBehavior: .antiAlias,
+          clipBehavior: .hardEdge,
           child: InkWell(
             onTap: onPushDetail,
             onLongPress: onLongPress,
@@ -129,17 +129,15 @@ class VideoCardV extends StatelessWidget {
         builder: (context, boxConstraints) {
           final maxWidth = boxConstraints.maxWidth;
           final maxHeight = boxConstraints.maxHeight;
-          return ClipRRect(
-            borderRadius: Style.mdRadius,
-            child: Stack(
-              fit: .expand,
-              children: [
-                NetworkImgLayer(
-                  src: videoItem.cover,
-                  width: maxWidth,
-                  height: maxHeight,
-                  borderRadius: .zero,
-                ),
+          return Stack(
+            fit: .expand,
+            children: [
+              NetworkImgLayer(
+                src: videoItem.cover,
+                width: maxWidth,
+                height: maxHeight,
+                borderRadius: .zero,
+              ),
                 const Positioned(
                   left: 0,
                   right: 0,
@@ -213,8 +211,7 @@ class VideoCardV extends StatelessWidget {
                     ],
                   ),
                 ),
-              ],
-            ),
+            ],
           );
         },
       ),

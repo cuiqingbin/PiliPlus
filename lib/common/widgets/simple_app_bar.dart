@@ -27,6 +27,8 @@ class SimpleAppBar extends StatelessWidget {
         statusBarColor: Colors.transparent,
         systemStatusBarContrastEnforced: false,
         systemNavigationBarColor: Colors.transparent,
+        systemNavigationBarDividerColor: Colors.transparent,
+        systemNavigationBarContrastEnforced: false,
         systemNavigationBarIconBrightness: brightness.reverse,
       ),
       child: ColoredBox(

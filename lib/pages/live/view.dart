@@ -10,6 +10,7 @@ import 'package:PiliPlus/common/widgets/pair.dart';
 import 'package:PiliPlus/http/loading_state.dart';
 import 'package:PiliPlus/models_new/live/live_feed_index/card_data_list_item.dart';
 import 'package:PiliPlus/models_new/live/live_feed_index/card_list.dart';
+import 'package:PiliPlus/pages/home/controller.dart';
 import 'package:PiliPlus/pages/live/controller.dart';
 import 'package:PiliPlus/pages/live/widgets/live_item_app.dart';
 import 'package:PiliPlus/pages/live_area/view.dart';
@@ -56,8 +57,12 @@ class _LivePageState extends State<LivePage>
       decoration: const BoxDecoration(borderRadius: Style.mdRadius),
       child: refreshIndicator(
         onRefresh: controller.onRefresh,
+        isClampingScrollPhysics: HomeNestedScope.of(context),
         child: CustomScrollView(
-          controller: controller.scrollController,
+          controller: HomeNestedScope.controllerFor(
+            context,
+            controller.scrollController,
+          ),
           physics: const AlwaysScrollableScrollPhysics(),
           slivers: [
             SliverPadding(

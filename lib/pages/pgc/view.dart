@@ -14,6 +14,7 @@ import 'package:PiliPlus/models/common/home_tab_type.dart';
 import 'package:PiliPlus/models_new/fav/fav_pgc/list.dart';
 import 'package:PiliPlus/models_new/pgc/pgc_index_result/list.dart';
 import 'package:PiliPlus/models_new/pgc/pgc_timeline/result.dart';
+import 'package:PiliPlus/pages/home/controller.dart';
 import 'package:PiliPlus/pages/pgc/controller.dart';
 import 'package:PiliPlus/pages/pgc/widgets/pgc_card_v.dart';
 import 'package:PiliPlus/pages/pgc/widgets/pgc_card_v_timeline.dart';
@@ -55,10 +56,15 @@ class _PgcPageState extends State<PgcPage> with AutomaticKeepAliveClientMixin {
   Widget build(BuildContext context) {
     super.build(context);
     final ThemeData theme = Theme.of(context);
+    final nested = HomeNestedScope.of(context);
     return refreshIndicator(
       onRefresh: controller.onRefresh,
+      isClampingScrollPhysics: nested,
       child: CustomScrollView(
-        controller: controller.scrollController,
+        controller: HomeNestedScope.controllerFor(
+          context,
+          controller.scrollController,
+        ),
         physics: const AlwaysScrollableScrollPhysics(),
         slivers: [
           _buildFollow(theme),

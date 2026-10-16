@@ -1,7 +1,9 @@
 import 'package:PiliPlus/common/style.dart';
 import 'package:PiliPlus/common/widgets/custom_height_widget.dart';
 import 'package:PiliPlus/common/widgets/image/network_img_layer.dart';
-import 'package:PiliPlus/common/widgets/scroll_physics.dart' show tabBarView;
+import 'package:PiliPlus/common/widgets/scroll_behavior.dart';
+import 'package:PiliPlus/common/widgets/scroll_physics.dart'
+    show platformClampingPhysics, tabBarView;
 import 'package:PiliPlus/pages/common/common_page.dart';
 import 'package:PiliPlus/pages/home/controller.dart';
 import 'package:PiliPlus/pages/main/controller.dart';
@@ -9,6 +11,7 @@ import 'package:PiliPlus/pages/mine/controller.dart';
 import 'package:PiliPlus/utils/extension/get_ext.dart';
 import 'package:PiliPlus/utils/extension/size_ext.dart';
 import 'package:PiliPlus/utils/feed_back.dart';
+import 'package:extended_nested_scroll_view/extended_nested_scroll_view.dart';
 import 'package:get/get.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import 'package:material_ui/material_ui.dart';
@@ -27,7 +30,8 @@ class _HomePageState extends CommonPageState<HomePage>
   final _mainController = Get.find<MainController>();
 
   @override
-  bool get needsCorrection => _homeController.hideTopBar;
+  bool get needsCorrection =>
+      _homeController.hideTopBar && !_homeController.useNestedHeader;
 
   @override
   bool get wantKeepAlive => true;
@@ -66,8 +70,7 @@ class _HomePageState extends CommonPageState<HomePage>
           },
         ),
       );
-      if (_homeController.hideTopBar &&
-          _mainController.barHideType == .instant) {
+      if (_homeController.hideTopBar) {
         tabBar = Material(
           color: _colorScheme.surface,
           child: tabBar,
@@ -76,35 +79,75 @@ class _HomePageState extends CommonPageState<HomePage>
     } else {
       tabBar = const SizedBox(height: 6);
     }
-    return Column(
-      children: [
-        if (!_mainController.useSideBar &&
-            MediaQuery.sizeOf(context).isPortrait)
-          customAppBar(),
-        tabBar,
-        Expanded(
-          child: onBuild(
-            tabBarView(
-              controller: _homeController.tabController,
-              children: _homeController.tabs.map((e) => e.page).toList(),
+    final tabs = tabBarView(
+      controller: _homeController.tabController,
+      children: _homeController.tabs.map((e) => e.page).toList(),
+    );
+    final showAppBar =
+        !_mainController.useSideBar && MediaQuery.sizeOf(context).isPortrait;
+    if (showAppBar && _homeController.useNestedHeader) {
+      return onBuild(
+        HomeNestedScope(
+          child: ExtendedNestedScrollView(
+            key: _homeController.nestedScrollKey,
+            onlyOneScrollInBody: true,
+            floatHeaderSlivers: true,
+            pinnedHeaderSliverHeightBuilder: () => 0,
+            physics: platformClampingPhysics,
+            scrollBehavior: const NoOverscrollIndicator(),
+            headerSliverBuilder: (context, innerBoxIsScrolled) {
+              return [
+                SliverAppBar(
+                  pinned: false,
+                  floating: true,
+                  snap: false,
+                  primary: false,
+                  automaticallyImplyLeading: false,
+                  toolbarHeight: Style.topBarHeight,
+                  titleSpacing: 0,
+                  backgroundColor: _colorScheme.surface,
+                  surfaceTintColor: Colors.transparent,
+                  elevation: 0,
+                  scrolledUnderElevation: 0,
+                  flexibleSpace: searchBarRow(),
+                ),
+              ];
+            },
+            body: Column(
+              children: [
+                tabBar,
+                Expanded(child: tabs),
+              ],
             ),
           ),
         ),
+      );
+    }
+    return Column(
+      children: [
+        if (showAppBar) customAppBar(),
+        tabBar,
+        Expanded(child: onBuild(tabs)),
       ],
     );
   }
 
-  Widget customAppBar() {
-    const padding = EdgeInsets.fromLTRB(12, 6, 8, 6);
-    final child = Row(
-      children: [
-        userAvatar(colorScheme: _colorScheme, mainController: _mainController),
-        const SizedBox(width: 8),
-        searchBar(),
-        const SizedBox(width: 2),
-        msgBadge(_mainController),
-      ],
+  Widget searchBarRow() {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(12, 6, 8, 6),
+      child: Row(
+        children: [
+          userAvatar(colorScheme: _colorScheme, mainController: _mainController),
+          const SizedBox(width: 8),
+          searchBar(),
+          const SizedBox(width: 2),
+          msgBadge(_mainController),
+        ],
+      ),
     );
+  }
+
+  Widget customAppBar() {
     if (_homeController.hideTopBar) {
       if (_mainController.barOffset case final barOffset?) {
         return Obx(
@@ -113,10 +156,7 @@ class _HomePageState extends CommonPageState<HomePage>
             return CustomHeightWidget(
               offset: Offset(0, -offset),
               height: Style.topBarHeight - offset,
-              child: Padding(
-                padding: padding,
-                child: child,
-              ),
+              child: searchBarRow(),
             );
           },
         );
@@ -131,17 +171,15 @@ class _HomePageState extends CommonPageState<HomePage>
               curve: Curves.easeInOutCubicEmphasized,
               duration: const Duration(milliseconds: 500),
               height: showSearchBar ? Style.topBarHeight : 0,
-              padding: padding,
-              child: child,
+              child: searchBarRow(),
             ),
           );
         });
       }
     }
-    return Container(
+    return SizedBox(
       height: Style.topBarHeight,
-      padding: padding,
-      child: child,
+      child: searchBarRow(),
     );
   }
 

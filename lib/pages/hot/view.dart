@@ -59,11 +59,16 @@ class _HotPageState extends State<HotPage>
   @override
   Widget build(BuildContext context) {
     super.build(context);
+    final nested = HomeNestedScope.of(context);
     return refreshIndicator(
       onRefresh: controller.onRefresh,
+      isClampingScrollPhysics: nested,
       child: CustomScrollView(
         physics: const AlwaysScrollableScrollPhysics(),
-        controller: controller.scrollController,
+        controller: HomeNestedScope.controllerFor(
+          context,
+          controller.scrollController,
+        ),
         slivers: [
           if (Pref.showHotRcmd)
             SliverToBoxAdapter(

@@ -7,10 +7,14 @@ import 'package:PiliPlus/models/common/home_tab_type.dart';
 import 'package:PiliPlus/pages/common/common_controller.dart';
 import 'package:PiliPlus/pages/main/controller.dart';
 import 'package:PiliPlus/services/account_service.dart';
+import 'package:PiliPlus/utils/extension/scroll_controller_ext.dart';
 import 'package:PiliPlus/utils/storage.dart';
 import 'package:PiliPlus/utils/storage_key.dart';
 import 'package:PiliPlus/utils/storage_pref.dart';
 import 'package:PiliPlus/utils/wbi_sign.dart';
+import 'package:easy_debounce/easy_throttle.dart';
+import 'package:extended_nested_scroll_view/extended_nested_scroll_view.dart'
+    show ExtendedNestedScrollViewState;
 import 'package:flutter/foundation.dart' show kDebugMode;
 import 'package:get/get.dart';
 import 'package:material_ui/material_ui.dart';
@@ -22,6 +26,8 @@ class HomeController extends GetxController
 
   RxBool? showTopBar;
   late final bool hideTopBar;
+  late final bool useNestedHeader;
+  final nestedScrollKey = GlobalKey<ExtendedNestedScrollViewState>();
 
   bool enableSearchWord = Pref.enableSearchWord;
   late final RxString defaultSearch = ''.obs;
@@ -39,8 +45,9 @@ class HomeController extends GetxController
     super.onInit();
 
     hideTopBar = !Pref.useSideBar && Pref.hideTopBar;
+    final mainCtr = Get.find<MainController>();
+    useNestedHeader = hideTopBar && mainCtr.barHideType == .sync;
     if (hideTopBar) {
-      final mainCtr = Get.find<MainController>();
       switch (mainCtr.barHideType) {
         case .instant:
           showTopBar = RxBool(true);
@@ -62,6 +69,48 @@ class HomeController extends GetxController
     return controller.onRefresh().catchError((e) {
       if (kDebugMode) debugPrint(e.toString());
     });
+  }
+
+  @override
+  void animateToTop() {
+    final state = nestedScrollKey.currentState;
+    if (state != null && state.mounted) {
+      _animateNestedToTop(state);
+      return;
+    }
+    super.animateToTop();
+  }
+
+  @override
+  void toTopOrRefresh() {
+    final state = nestedScrollKey.currentState;
+    if (state != null && state.mounted) {
+      final atTop =
+          (!state.outerController.hasClients ||
+              state.outerController.offset == 0) &&
+          (!state.innerController.hasClients ||
+              state.innerController.offset == 0);
+      if (atTop) {
+        EasyThrottle.throttle(
+          'topOrRefresh',
+          const Duration(milliseconds: 500),
+          onRefresh,
+        );
+      } else {
+        _animateNestedToTop(state);
+      }
+      return;
+    }
+    super.toTopOrRefresh();
+  }
+
+  void _animateNestedToTop(ExtendedNestedScrollViewState state) {
+    if (state.innerController.hasClients) {
+      state.innerController.animToTop();
+    }
+    if (state.outerController.hasClients) {
+      state.outerController.animToTop();
+    }
   }
 
   void setTabConfig() {
@@ -97,4 +146,19 @@ class HomeController extends GetxController
       }
     } catch (_) {}
   }
+}
+
+class HomeNestedScope extends InheritedWidget {
+  const HomeNestedScope({super.key, required super.child});
+
+  static bool of(BuildContext context) =>
+      context.getInheritedWidgetOfExactType<HomeNestedScope>() != null;
+
+  static ScrollController? controllerFor(
+    BuildContext context,
+    ScrollController fallback,
+  ) => of(context) ? null : fallback;
+
+  @override
+  bool updateShouldNotify(covariant HomeNestedScope oldWidget) => false;
 }

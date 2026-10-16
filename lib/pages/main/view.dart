@@ -366,6 +366,8 @@ class _MainAppState extends PopScopeState<MainApp>
           statusBarIconBrightness: _colorScheme.brightness.reverse,
           systemStatusBarContrastEnforced: false,
           systemNavigationBarColor: Colors.transparent,
+          systemNavigationBarDividerColor: Colors.transparent,
+          systemNavigationBarContrastEnforced: false,
           systemNavigationBarIconBrightness: _colorScheme.brightness.reverse,
         ),
         child: child,

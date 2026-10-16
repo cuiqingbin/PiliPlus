@@ -1,5 +1,6 @@
 import 'dart:math';
 
+import 'package:PiliPlus/common/assets.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/rendering.dart';
@@ -8,6 +9,7 @@ import 'package:flutter/services.dart'
         MouseTrackerAnnotation,
         PointerEnterEventListener,
         PointerExitEventListener;
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:material_ui/material_ui.dart';
 
 /// https://github.com/suragch/audio_video_progress_bar
@@ -43,6 +45,7 @@ class ProgressBar extends LeafRenderObjectWidget {
     required this.thumbGlowColor,
     this.thumbGlowRadius = 30.0,
     this.thumbCanPaintOutsideBar = true,
+    this.thumbShape = ProgressThumbShape.circle,
   });
 
   /// The elapsed playing time of the media.
@@ -156,6 +159,9 @@ class ProgressBar extends LeafRenderObjectWidget {
   /// By default it is 30.
   final double thumbGlowRadius;
 
+  /// Thumb appearance. Official Bilibili player uses [ProgressThumbShape.biliTv].
+  final ProgressThumbShape thumbShape;
+
   /// Whether the thumb radius will before the start of the bar when at the
   /// beginning or after the end of the bar when at the end.
   ///
@@ -192,6 +198,7 @@ class ProgressBar extends LeafRenderObjectWidget {
       thumbGlowColor: thumbGlowColor,
       thumbGlowRadius: thumbGlowRadius,
       thumbCanPaintOutsideBar: thumbCanPaintOutsideBar,
+      thumbShape: thumbShape,
     );
   }
 
@@ -216,7 +223,8 @@ class ProgressBar extends LeafRenderObjectWidget {
       ..thumbColor = thumbColor
       ..thumbGlowColor = thumbGlowColor
       ..thumbGlowRadius = thumbGlowRadius
-      ..thumbCanPaintOutsideBar = thumbCanPaintOutsideBar;
+      ..thumbCanPaintOutsideBar = thumbCanPaintOutsideBar
+      ..thumbShape = thumbShape;
   }
 
   @override
@@ -273,6 +281,8 @@ class ProgressBar extends LeafRenderObjectWidget {
       );
   }
 }
+
+enum ProgressThumbShape { circle, biliTv }
 
 typedef OnSeek = void Function(int milliseconds);
 
@@ -341,12 +351,14 @@ class RenderProgressBar extends RenderBox implements MouseTrackerAnnotation {
     required this._thumbGlowColor,
     double thumbGlowRadius = 30.0,
     this._thumbCanPaintOutsideBar = true,
+    ProgressThumbShape thumbShape = ProgressThumbShape.circle,
   }) : _onDragStartUserCallback = onDragStart,
        _onDragUpdateUserCallback = onDragUpdate,
        _onDragEndUserCallback = onDragEnd,
        _thumbRadius = thumbRadius,
        _thumbGlowRadius = thumbGlowRadius,
        _paintThumbGlow = thumbGlowRadius > thumbRadius,
+       _thumbShape = thumbShape,
        _hitTestSelf = onDragStart != null {
     if (onDragStart != null) {
       _drag = _EagerHorizontalDragGestureRecognizer()
@@ -357,6 +369,9 @@ class RenderProgressBar extends RenderBox implements MouseTrackerAnnotation {
     }
     if (!_userIsDraggingThumb) {
       _thumbValue = _proportionOfTotal(_progress);
+    }
+    if (_thumbShape == ProgressThumbShape.biliTv) {
+      _ensureTvPicture();
     }
   }
 
@@ -614,6 +629,33 @@ class RenderProgressBar extends RenderBox implements MouseTrackerAnnotation {
     markNeedsPaint();
   }
 
+  ProgressThumbShape get thumbShape => _thumbShape;
+  ProgressThumbShape _thumbShape;
+  set thumbShape(ProgressThumbShape value) {
+    if (_thumbShape == value) return;
+    _thumbShape = value;
+    if (value == ProgressThumbShape.biliTv) {
+      _ensureTvPicture();
+    }
+    markNeedsLayout();
+  }
+
+  static const _tvThumbSize = 20.0;
+  static PictureInfo? _tvPicture;
+  static Future<PictureInfo>? _tvPictureFuture;
+
+  void _ensureTvPicture() {
+    if (_tvPicture != null) return;
+    _tvPictureFuture ??= vg.loadPicture(
+      const SvgAssetLoader(Assets.biliTv),
+      null,
+    );
+    _tvPictureFuture!.then((info) {
+      _tvPicture = info;
+      if (attached) markNeedsPaint();
+    });
+  }
+
   // The smallest that this widget would ever want to be.
   static const _minDesiredWidth = 100.0;
 
@@ -654,7 +696,17 @@ class RenderProgressBar extends RenderBox implements MouseTrackerAnnotation {
   }
 
   double _heightWhenNoLabels() {
+    if (_thumbShape == ProgressThumbShape.biliTv) {
+      return _tvThumbSize + _barHeight;
+    }
     return max(2 * _thumbRadius, _barHeight);
+  }
+
+  double _barCenterY(Size localSize) {
+    if (_thumbShape == ProgressThumbShape.biliTv) {
+      return localSize.height - _barHeight / 2;
+    }
+    return localSize.height / 2;
   }
 
   @override
@@ -732,26 +784,63 @@ class RenderProgressBar extends RenderBox implements MouseTrackerAnnotation {
     final capRadius = _barHeight / 2;
     final adjustedWidth = availableSize.width - barHeight;
     final dx = widthProportion * adjustedWidth + capRadius;
-    final dy = availableSize.height / 2;
+    final dy = _barCenterY(availableSize);
     final startPoint = Offset(capRadius, dy);
     final endPoint = Offset(dx, dy);
     canvas.drawLine(startPoint, endPoint, baseBarPaint);
   }
 
   void _drawThumb(Canvas canvas, Size localSize) {
-    final thumbPaint = Paint()..color = thumbColor;
     final barCapRadius = _barHeight / 2;
     final availableWidth = localSize.width - _barHeight;
     var thumbDx = _thumbValue * availableWidth + barCapRadius;
+    final halfThumb = _thumbShape == ProgressThumbShape.biliTv
+        ? _tvThumbSize / 2
+        : _thumbRadius;
     if (!_thumbCanPaintOutsideBar) {
-      thumbDx = thumbDx.clamp(_thumbRadius, localSize.width - _thumbRadius);
+      thumbDx = thumbDx.clamp(halfThumb, localSize.width - halfThumb);
+    }
+    if (_thumbShape == ProgressThumbShape.biliTv) {
+      _drawBiliTvThumb(canvas, thumbDx, _barCenterY(localSize));
+      return;
     }
     final center = Offset(thumbDx, localSize.height / 2);
+    final thumbPaint = Paint()..color = thumbColor;
+    final radius = _userIsDraggingThumb ? _thumbRadius * 1.25 : _thumbRadius;
     if (_userIsDraggingThumb && _paintThumbGlow) {
-      final thumbGlowPaint = Paint()..color = thumbGlowColor;
-      canvas.drawCircle(center, thumbGlowRadius, thumbGlowPaint);
+      canvas.drawCircle(
+        center,
+        thumbGlowRadius,
+        Paint()..color = thumbGlowColor,
+      );
     }
-    canvas.drawCircle(center, thumbRadius, thumbPaint);
+    canvas
+      ..drawCircle(
+        center.translate(0, 0.5),
+        radius + 0.4,
+        Paint()..color = const Color(0x33000000),
+      )
+      ..drawCircle(center, radius, thumbPaint);
+  }
+
+  void _drawBiliTvThumb(Canvas canvas, double thumbDx, double barY) {
+    final info = _tvPicture;
+    if (info == null) {
+      _ensureTvPicture();
+      return;
+    }
+    final scale = _userIsDraggingThumb ? 1.08 : 1.0;
+    final size = _tvThumbSize * scale;
+    final origin = Offset(
+      thumbDx - size / 2,
+      barY - size * 0.58,
+    );
+    canvas
+      ..save()
+      ..translate(origin.dx, origin.dy)
+      ..scale(size / info.size.width, size / info.size.height)
+      ..drawPicture(info.picture)
+      ..restore();
   }
 
   double _proportionOfTotal(int duration) {

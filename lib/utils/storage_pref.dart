@@ -446,7 +446,7 @@ abstract final class Pref {
       _setting.get(SettingBoxKey.cdnSpeedTest, defaultValue: true);
 
   static bool get autoUpdate =>
-      _setting.get(SettingBoxKey.autoUpdate, defaultValue: true);
+      _setting.get(SettingBoxKey.autoUpdate, defaultValue: false);
 
   static bool get horizontalPreview =>
       _setting.get(SettingBoxKey.horizontalPreview, defaultValue: false);
@@ -697,7 +697,7 @@ abstract final class Pref {
 
   static bool get hideBottomBar => _setting.get(
     SettingBoxKey.hideBottomBar,
-    defaultValue: PlatformUtils.isMobile,
+    defaultValue: false,
   );
 
   static BarHideType get barHideType =>
@@ -730,11 +730,11 @@ abstract final class Pref {
       _setting.get(SettingBoxKey.p1080, defaultValue: true);
 
   static int get customColor =>
-      _setting.get(SettingBoxKey.customColor, defaultValue: 0);
+      _setting.get(SettingBoxKey.customColor, defaultValue: 1);
 
   static bool get dynamicColor =>
       !Platform.isIOS &&
-      _setting.get(SettingBoxKey.dynamicColor, defaultValue: true);
+      _setting.get(SettingBoxKey.dynamicColor, defaultValue: false);
 
   static bool get enableSystemProxy =>
       _setting.get(SettingBoxKey.enableSystemProxy, defaultValue: false);
