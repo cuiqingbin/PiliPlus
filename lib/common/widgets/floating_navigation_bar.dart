@@ -7,7 +7,7 @@ import 'package:material_ui/material_ui.dart';
 
 const double _kMaxLabelTextScaleFactor = 1.3;
 
-const _kNavigationHeight = 64.0;
+const _kNavigationHeight = 56.0;
 const _kIndicatorHeight = _kNavigationHeight - 2 * _kIndicatorPaddingInt;
 const _kIndicatorWidth = 86.0;
 const _kIndicatorPaddingInt = 4.0;
@@ -36,7 +36,7 @@ class FloatingNavigationBar extends StatelessWidget {
     this.overlayColor,
     this.labelTextStyle,
     this.labelPadding,
-    this.bottomPadding = 8.0,
+    this.bottomPadding = 6.0,
   }) : assert(destinations.length >= 2),
        assert(0 <= selectedIndex && selectedIndex < destinations.length);
 

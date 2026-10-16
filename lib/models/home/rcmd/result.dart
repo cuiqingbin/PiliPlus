@@ -41,8 +41,9 @@ class RcmdVideoItemAppModel extends BaseRcmdVideoItemModel {
     uri = json['uri'];
     talkBack = json['talk_back'];
 
+    coverRightText = json['cover_right_text'];
     if (goto == 'bangumi') {
-      pgcBadge = json['cover_right_text'];
+      pgcBadge = coverRightText;
     }
 
     cardType = json['card_type'];

@@ -29,10 +29,9 @@ class _RcmdPageState extends State<RcmdPage>
   Widget build(BuildContext context) {
     super.build(context);
     final colorScheme = ColorScheme.of(context);
-    return Container(
-      clipBehavior: .hardEdge,
-      margin: const .symmetric(horizontal: Style.safeSpace),
-      decoration: const BoxDecoration(borderRadius: Style.mdRadius),
+    final isDark = colorScheme.brightness == Brightness.dark;
+    return ColoredBox(
+      color: isDark ? colorScheme.surfaceContainerLow : Style.feedBackground,
       child: refreshIndicator(
         onRefresh: controller.onRefresh,
         child: CustomScrollView(
@@ -40,7 +39,7 @@ class _RcmdPageState extends State<RcmdPage>
           physics: const AlwaysScrollableScrollPhysics(),
           slivers: [
             SliverPadding(
-              padding: const .only(top: Style.cardSpace, bottom: 100),
+              padding: const .fromLTRB(8, Style.cardSpace, 8, 100),
               sliver: Obx(
                 () => _buildBody(colorScheme, controller.loadingState.value),
               ),
@@ -52,11 +51,11 @@ class _RcmdPageState extends State<RcmdPage>
   }
 
   late final gridDelegate = SliverGridDelegateWithExtentAndRatio(
-    mainAxisSpacing: Style.cardSpace,
-    crossAxisSpacing: Style.cardSpace,
+    mainAxisSpacing: 7,
+    crossAxisSpacing: 7,
     maxCrossAxisExtent: Pref.recommendCardWidth,
     childAspectRatio: Style.aspectRatio,
-    mainAxisExtent: MediaQuery.textScalerOf(context).scale(90),
+    mainAxisExtent: MediaQuery.textScalerOf(context).scale(70),
   );
 
   Widget _buildBody(

@@ -59,7 +59,18 @@ if not "!BUILD_ERR!"=="0" (
     goto :fail
 )
 
-set "APK=%CD%\build\app\outputs\flutter-apk\app-arm64-v8a-release.apk"
+set "FLUTTER_APK_DIR=%CD%\build\app\outputs\flutter-apk"
+set "GRADLE_APK_DIR=%CD%\build\app\outputs\apk\release"
+set "APK=!FLUTTER_APK_DIR!\bilibili-lite-arm64-v8a-release.apk"
+
+if exist "!GRADLE_APK_DIR!\bilibili-lite-arm64-v8a-release.apk" (
+    copy /y "!GRADLE_APK_DIR!\bilibili-lite-arm64-v8a-release.apk" "!APK!" >nul
+)
+if exist "!FLUTTER_APK_DIR!\app-arm64-v8a-release.apk" (
+    if not exist "!APK!" copy /y "!FLUTTER_APK_DIR!\app-arm64-v8a-release.apk" "!APK!" >nul
+    del /f /q "!FLUTTER_APK_DIR!\app-arm64-v8a-release.apk" >nul 2>&1
+)
+if not exist "!APK!" if exist "!GRADLE_APK_DIR!\bilibili-lite-arm64-v8a-release.apk" set "APK=!GRADLE_APK_DIR!\bilibili-lite-arm64-v8a-release.apk"
 if not exist "!APK!" (
     echo [ERROR] 找不到 APK: !APK!
     goto :fail

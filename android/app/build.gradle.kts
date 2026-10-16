@@ -86,7 +86,11 @@ android {
     applicationVariants.all {
         val variant = this
         variant.outputs.forEach { output ->
-            (output as ApkVariantOutputImpl).versionCodeOverride = flutter.versionCode
+            val apkOutput = output as ApkVariantOutputImpl
+            apkOutput.versionCodeOverride = flutter.versionCode
+            if (apkOutput.outputFileName.startsWith("app-")) {
+                apkOutput.outputFileName = apkOutput.outputFileName.replace("app-", "bilibili-lite-")
+            }
         }
     }
 }

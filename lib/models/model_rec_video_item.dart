@@ -9,6 +9,13 @@ abstract class BaseRcmdVideoItemModel extends BaseVideoItemModel {
   // app推荐专属
   int? param;
   String? pgcBadge;
+  String? coverRightText;
+
+  bool get isLive =>
+      goto == 'live' ||
+      goto == 'live_rcmd' ||
+      goto == 'inline_live' ||
+      coverRightText == '直播';
 }
 
 class RcmdVideoItemModel extends BaseRcmdVideoItemModel {

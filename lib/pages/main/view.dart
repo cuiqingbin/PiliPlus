@@ -172,7 +172,9 @@ class _MainAppState extends PopScopeState<MainApp>
       } else if (_mainController.enableMYBar) {
         bottomNav = Obx(
           () => NavigationBar(
+            height: 50,
             maintainBottomViewPadding: true,
+            indicatorColor: Colors.transparent,
             onDestinationSelected: _mainController.setIndex,
             selectedIndex: _mainController.selectedIndex.value,
             destinations: _mainController.navigationBars
@@ -191,9 +193,9 @@ class _MainAppState extends PopScopeState<MainApp>
           () => BottomNavigationBar(
             currentIndex: _mainController.selectedIndex.value,
             onTap: _mainController.setIndex,
-            iconSize: 16,
-            selectedFontSize: 12,
-            unselectedFontSize: 12,
+            iconSize: 22,
+            selectedFontSize: 10,
+            unselectedFontSize: 10,
             type: .fixed,
             items: _mainController.navigationBars
                 .map(

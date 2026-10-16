@@ -76,7 +76,41 @@ abstract final class ThemeUtils {
         ),
       ),
       navigationBarTheme: NavigationBarThemeData(
+        height: 50,
+        elevation: 0,
+        shadowColor: Colors.transparent,
+        backgroundColor: colorScheme.surface,
+        indicatorColor: Colors.transparent,
+        overlayColor: WidgetStateProperty.resolveWith((states) {
+          if (states.contains(WidgetState.pressed)) {
+            return colorScheme.primary.withValues(alpha: 0.08);
+          }
+          return Colors.transparent;
+        }),
         surfaceTintColor: isDark ? colorScheme.surfaceContainerHighest : null,
+        labelPadding: const EdgeInsets.only(top: 1),
+        iconTheme: WidgetStateProperty.resolveWith((states) {
+          final selected = states.contains(WidgetState.selected);
+          return IconThemeData(
+            size: 22,
+            color: selected ? colorScheme.primary : colorScheme.outline,
+          );
+        }),
+        labelTextStyle: WidgetStateProperty.resolveWith((states) {
+          final selected = states.contains(WidgetState.selected);
+          return TextStyle(
+            fontSize: 10,
+            height: 1.2,
+            fontWeight: selected ? FontWeight.w500 : FontWeight.w400,
+            color: selected ? colorScheme.primary : colorScheme.outline,
+          );
+        }),
+      ),
+      bottomNavigationBarTheme: BottomNavigationBarThemeData(
+        selectedItemColor: colorScheme.primary,
+        unselectedItemColor: colorScheme.outline,
+        selectedLabelStyle: const TextStyle(fontSize: 10),
+        unselectedLabelStyle: const TextStyle(fontSize: 10),
       ),
       snackBarTheme: SnackBarThemeData(
         elevation: 20,

@@ -7,6 +7,7 @@ class StatWidget extends StatelessWidget {
   final dynamic value;
   final Color? color;
   final double iconSize;
+  final double fontSize;
 
   const StatWidget({
     super.key,
@@ -14,6 +15,7 @@ class StatWidget extends StatelessWidget {
     required this.value,
     this.color,
     this.iconSize = 13,
+    this.fontSize = 12,
   });
 
   @override
@@ -33,7 +35,7 @@ class StatWidget extends StatelessWidget {
         ),
         Text(
           NumUtils.numFormat(value),
-          style: TextStyle(fontSize: 12, color: color),
+          style: TextStyle(fontSize: fontSize, color: color),
         ),
       ],
     );

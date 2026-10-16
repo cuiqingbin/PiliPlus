@@ -20,8 +20,8 @@ class ActionItem extends StatelessWidget {
   }) : assert(!selectStatus || selectIcon != null),
        _isThumbsUp = onStartTriple != null;
 
-  final Icon icon;
-  final Icon? selectIcon;
+  final Widget icon;
+  final Widget? selectIcon;
   final VoidCallback? onTap;
   final VoidCallback? onLongPress;
   final String? text;
@@ -40,11 +40,25 @@ class ActionItem extends StatelessWidget {
     late final primary = !expand && colorScheme.isLight
         ? colorScheme.inversePrimary
         : colorScheme.primary;
-    Widget child = Icon(
-      selectStatus ? selectIcon!.icon! : icon.icon,
-      size: 18,
-      color: selectStatus ? primary : icon.color ?? colorScheme.outline,
-      semanticLabel: semanticsLabel,
+    final iconWidget = icon;
+    final Color unselectedColor;
+    if (iconWidget is Icon && iconWidget.color != null) {
+      unselectedColor = iconWidget.color!;
+    } else if (!expand) {
+      unselectedColor = Colors.white;
+    } else {
+      unselectedColor = colorScheme.outline;
+    }
+    Widget child = IconTheme.merge(
+      data: IconThemeData(
+        size: 18,
+        color: selectStatus ? primary : unselectedColor,
+      ),
+      child: Semantics(
+        label: semanticsLabel,
+        excludeSemantics: true,
+        child: selectStatus ? selectIcon! : icon,
+      ),
     );
 
     if (animation != null) {
@@ -61,7 +75,10 @@ class ActionItem extends StatelessWidget {
         ],
       );
     } else {
-      child = SizedBox.square(dimension: 28, child: child);
+      child = SizedBox.square(
+        dimension: 28,
+        child: Center(child: child),
+      );
     }
 
     child = Material(
